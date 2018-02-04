@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -21,7 +22,7 @@ var staff []Person
 // our main function
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/all", GetAllStaffLocations).Methods("GET")
+	router.HandleFunc("/", GetAllStaffLocations).Methods("GET")
 	router.HandleFunc("/{id}", GetStaffLocation).Methods("GET")
 	router.HandleFunc("/{id}", UpdateStaffLocation).Methods("PATCH")
 
@@ -30,17 +31,26 @@ func main() {
 	staff = append(staff, Person{"3", "Sian", "Barlow", "Client Office"})
 	staff = append(staff, Person{"4", "Imran", "Askem", "Holiday"})
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
+
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
 //GetAllStaffLocations gets locations of all staff
 func GetAllStaffLocations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	json.NewEncoder(w).Encode(staff)
 }
 
 //GetStaffLocation gets a single colleague location
 func GetStaffLocation(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	for _, item := range staff {
 		if item.ID == params["id"] {

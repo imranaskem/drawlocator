@@ -9,5 +9,9 @@
 			"revisionTime": "2018-01-20T07:58:19Z"
 		}
 	],
-	"rootPath": "drawlocator"
+	"rootPath": "drawlocator",
+	"heroku": {
+        "install" : [ "./..." ],
+        "goVersion": "go1.9"
+         }
 }
