@@ -9,10 +9,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//App holds our application
 type App struct {
 	Router *mux.Router
 }
 
+//Initialise acts as our constructor
 func (a *App) Initialise(user, pw, dbname string) {
 	a.Router = mux.NewRouter()
 
@@ -21,6 +23,7 @@ func (a *App) Initialise(user, pw, dbname string) {
 	a.initialiseRoutes()
 }
 
+//Run starts our application
 func (a *App) Run() {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -57,12 +60,16 @@ func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	var person person
-	_ = json.NewDecoder(r.Body).Decode(&person)
+	var personUpdate person
+	_ = json.NewDecoder(r.Body).Decode(&personUpdate)
 
-	for _, item := range staff {
+	for i, item := range staff {
 		if item.ID == params["id"] {
-			item.PlaceOfWork = person.PlaceOfWork
+			staff[i].PlaceOfWork = personUpdate.PlaceOfWork
+			personUpdate = staff[i]
 		}
 	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(personUpdate)
 }
