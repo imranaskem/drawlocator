@@ -7,20 +7,27 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //App holds our application
 type App struct {
 	Router *mux.Router
+	DB     *mgo.Database
 }
 
 //Initialise acts as our constructor
 func (a *App) Initialise(user, pw, dbname string) {
 	a.Router = mux.NewRouter()
 
-	staff = getData()
-
 	a.initialiseRoutes()
+
+	s, _ := mgo.Dial("ds225308.mlab.com:25308")
+
+	a.DB = s.DB(dbname)
+
+	a.DB.Login(user, pw)
 }
 
 //Run starts our application
@@ -42,7 +49,10 @@ func (a *App) initialiseRoutes() {
 func (a *App) getAllStaffLocations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	json.NewEncoder(w).Encode(staff)
+	var people []person
+	_ = a.DB.C("people").Find(bson.M{}).All(&people)
+
+	json.NewEncoder(w).Encode(people)
 }
 
 func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
@@ -50,12 +60,12 @@ func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	for _, item := range staff {
-		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
-	}
+	id := params["id"]
+
+	var person person
+	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&person)
+
+	json.NewEncoder(w).Encode(person)
 }
 
 func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
