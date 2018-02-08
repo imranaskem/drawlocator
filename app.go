@@ -73,12 +73,9 @@ func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 	var personUpdate person
 	_ = json.NewDecoder(r.Body).Decode(&personUpdate)
 
-	for i, item := range staff {
-		if item.ID == params["id"] {
-			staff[i].PlaceOfWork = personUpdate.PlaceOfWork
-			personUpdate = staff[i]
-		}
-	}
+	id := params["id"]
+
+	_ = a.DB.C("people").Update(bson.M{"id": id}, &personUpdate)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	json.NewEncoder(w).Encode(personUpdate)
