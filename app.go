@@ -48,6 +48,7 @@ func (a *App) initialiseRoutes() {
 
 func (a *App) getAllStaffLocations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var people []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
