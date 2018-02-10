@@ -70,13 +70,18 @@ func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	id := params["id"]
+
 	var personUpdate person
 	_ = json.NewDecoder(r.Body).Decode(&personUpdate)
 
-	id := params["id"]
+	var existingPerson person
+	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&existingPerson)
 
-	_ = a.DB.C("people").Update(bson.M{"id": id}, &personUpdate)
+	existingPerson.PlaceOfWork = personUpdate.PlaceOfWork
+
+	_ = a.DB.C("people").Update(bson.M{"id": id}, &existingPerson)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	json.NewEncoder(w).Encode(personUpdate)
+	json.NewEncoder(w).Encode(existingPerson)
 }
