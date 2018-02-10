@@ -18,12 +18,12 @@ type App struct {
 }
 
 //Initialise acts as our constructor
-func (a *App) Initialise(user, pw, dbname string) {
+func (a *App) Initialise(user, pw, dbname, dburl string) {
 	a.Router = mux.NewRouter()
 
 	a.initialiseRoutes()
 
-	s, _ := mgo.Dial("ds225308.mlab.com:25308")
+	s, _ := mgo.Dial(dburl)
 
 	a.DB = s.DB(dbname)
 
