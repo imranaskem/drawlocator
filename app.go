@@ -46,6 +46,7 @@ func (a *App) Run() {
 func (a *App) initialiseRoutes() {
 	a.Router.HandleFunc("/", a.getAllStaffLocations).Methods("GET")
 	a.Router.HandleFunc("/", a.handleOptions).Methods("OPTIONS")
+	a.Router.HandleFunc("/{id}", a.handleOptions).Methods("OPTIONS")
 	a.Router.HandleFunc("/{id}", a.getStaffLocation).Methods("GET")
 	a.Router.HandleFunc("/{id}", a.updateStaffLocation).Methods("PATCH")
 }
