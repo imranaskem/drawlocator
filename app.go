@@ -60,6 +60,7 @@ func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	id := params["id"]
 
@@ -84,5 +85,6 @@ func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 	_ = a.DB.C("people").Update(bson.M{"id": id}, &existingPerson)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(existingPerson)
 }
