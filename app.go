@@ -54,6 +54,7 @@ func (a *App) getAllStaffLocations(w http.ResponseWriter, r *http.Request) {
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(people)
 }
 
@@ -66,6 +67,7 @@ func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
 	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&person)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(person)
 }
 
@@ -84,5 +86,6 @@ func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 	_ = a.DB.C("people").Update(bson.M{"id": id}, &existingPerson)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(existingPerson)
 }
