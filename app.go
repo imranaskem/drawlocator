@@ -45,8 +45,13 @@ func (a *App) Run() {
 
 func (a *App) initialiseRoutes() {
 	a.Router.HandleFunc("/", a.getAllStaffLocations).Methods("GET")
+	a.Router.HandleFunc("/", a.handleOptions).Methods("OPTIONS")
 	a.Router.HandleFunc("/{id}", a.getStaffLocation).Methods("GET")
 	a.Router.HandleFunc("/{id}", a.updateStaffLocation).Methods("PATCH")
+}
+
+func (a *App) handleOptions(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (a *App) getAllStaffLocations(w http.ResponseWriter, r *http.Request) {
