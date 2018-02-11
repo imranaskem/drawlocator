@@ -21,6 +21,9 @@ type App struct {
 func (a *App) Initialise(user, pw, dbname, dburl string) {
 	a.Router = mux.NewRouter()
 
+	a.Router.Headers("Access-Control-Allow-Origin", "*",
+		"Access-Control-Allow-Methods", "OPTIONS, TRACE, GET, HEAD, POST, PUT")
+
 	a.initialiseRoutes()
 
 	s, _ := mgo.Dial(dburl)
@@ -47,26 +50,22 @@ func (a *App) initialiseRoutes() {
 }
 
 func (a *App) getAllStaffLocations(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	var people []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(people)
 }
 
 func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	id := params["id"]
 
 	var person person
 	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&person)
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(person)
 }
 
@@ -84,7 +83,6 @@ func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 
 	_ = a.DB.C("people").Update(bson.M{"id": id}, &existingPerson)
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(existingPerson)
 }
