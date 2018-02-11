@@ -22,7 +22,7 @@ func (a *App) Initialise(user, pw, dbname, dburl string) {
 	a.Router = mux.NewRouter()
 
 	a.Router.Headers("Access-Control-Allow-Origin", "*",
-		"Access-Control-Allow-Methods", "OPTIONS, TRACE, GET, HEAD, POST, PUT")
+		"Access-Control-Allow-Methods", "OPTIONS, GET, PATCH")
 
 	a.initialiseRoutes()
 
@@ -53,6 +53,7 @@ func (a *App) initialiseRoutes() {
 
 func (a *App) handleOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET, PATCH")
 	w.WriteHeader(http.StatusOK)
 }
 
