@@ -21,9 +21,6 @@ type App struct {
 func (a *App) Initialise(user, pw, dbname, dburl string) {
 	a.Router = mux.NewRouter()
 
-	a.Router.Headers("Access-Control-Allow-Origin", "*",
-		"Access-Control-Allow-Methods", "OPTIONS, GET, PATCH")
-
 	a.initialiseRoutes()
 
 	s, _ := mgo.Dial(dburl)
