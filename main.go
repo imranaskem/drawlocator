@@ -10,10 +10,10 @@ var staff []person
 func main() {
 	a := App{}
 
-	user := os.Getenv("USER")
-	pw := os.Getenv("PW")
-	dbname := os.Getenv("DBNAME")
-	dburl := os.Getenv("DBURL")
+	user := os.Getenv("DRAWLOCATOR_USER")
+	pw := os.Getenv("DRAWLOCATOR_PW")
+	dbname := os.Getenv("DRAWLOCATOR_DBNAME")
+	dburl := os.Getenv("DRAWLOCATOR_DBURL")
 
 	a.Initialise(user, pw, dbname, dburl)
 
