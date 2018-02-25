@@ -112,6 +112,7 @@ func (a *App) websocketHandler(c *gin.Context) {
 
 	var oPeople []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&oPeople)
+	conn.WriteJSON(oPeople)
 
 	for {
 		time.Sleep(1 * time.Second)
