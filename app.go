@@ -125,7 +125,8 @@ func (a *App) websocketHandler(c *gin.Context) {
 			oPeople = nPeople
 		}
 
-		conn.WriteMessage(websocket.TextMessage, []byte("Check happened"))
+		pay, _ := json.Marshal(oPeople)
+		conn.WriteJSON(pay)
 	}
 }
 
