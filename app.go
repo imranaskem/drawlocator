@@ -1,25 +1,24 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 //App holds our application
 type App struct {
-	Router *mux.Router
+	Router *gin.Engine
 	DB     *mgo.Database
 }
 
 //Initialise acts as our constructor
 func (a *App) Initialise(user, pw, dbname, dburl string) {
-	a.Router = mux.NewRouter()
+	a.Router = gin.Default()
 
 	a.initialiseRoutes()
 
@@ -37,51 +36,47 @@ func (a *App) Run() {
 		port = "5000"
 	}
 
-	log.Fatal(http.ListenAndServe(":"+port, a.Router))
+	a.Router.Run(":" + port)
 }
 
 func (a *App) initialiseRoutes() {
-	a.Router.HandleFunc("/", a.getAllStaffLocations).Methods("GET")
-	a.Router.HandleFunc("/", a.handleOptions).Methods("OPTIONS")
-	a.Router.HandleFunc("/{id}", a.handleOptions).Methods("OPTIONS")
-	a.Router.HandleFunc("/{id}", a.getStaffLocation).Methods("GET")
-	a.Router.HandleFunc("/{id}", a.updateStaffLocation).Methods("PATCH")
+
+	a.Router.GET("/", a.getAllStaffLocations)
+	a.Router.OPTIONS("/", a.handleOptions)
+
+	a.Router.GET("/:id", a.getStaffLocation)
+	a.Router.PATCH("/:id", a.updateStaffLocation)
+	a.Router.OPTIONS("/:id", a.handleOptions)
 }
 
-func (a *App) handleOptions(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET, PATCH")
-	w.WriteHeader(http.StatusOK)
+func (a *App) handleOptions(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "OPTIONS, GET, PATCH")
+	c.Status(http.StatusOK)
 }
 
-func (a *App) getAllStaffLocations(w http.ResponseWriter, r *http.Request) {
+func (a *App) getAllStaffLocations(c *gin.Context) {
 	var people []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	json.NewEncoder(w).Encode(people)
+	c.JSON(http.StatusOK, people)
 }
 
-func (a *App) getStaffLocation(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-
-	id := params["id"]
+func (a *App) getStaffLocation(c *gin.Context) {
+	id := c.Param("id")
 
 	var person person
 	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&person)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	json.NewEncoder(w).Encode(person)
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.JSON(http.StatusOK, person)
 }
 
-func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
+func (a *App) updateStaffLocation(c *gin.Context) {
+	id := c.Param("id")
 
 	var personUpdate person
-	_ = json.NewDecoder(r.Body).Decode(&personUpdate)
+	_ = c.BindJSON(&personUpdate)
 
 	var existingPerson person
 	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&existingPerson)
@@ -90,7 +85,6 @@ func (a *App) updateStaffLocation(w http.ResponseWriter, r *http.Request) {
 
 	_ = a.DB.C("people").Update(bson.M{"id": id}, &existingPerson)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	json.NewEncoder(w).Encode(existingPerson)
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.JSON(http.StatusOK, existingPerson)
 }

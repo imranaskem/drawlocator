@@ -24,11 +24,6 @@
 #   go-tests = true
 #   unused-packages = true
 
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/gorilla/mux"
-
 [prune]
   go-tests = true
   unused-packages = true
