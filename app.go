@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -120,13 +119,9 @@ func (a *App) websocketHandler(c *gin.Context) {
 		_ = a.DB.C("people").Find(bson.M{}).All(&nPeople)
 
 		if !comparePeople(oPeople, nPeople) {
-			p, _ := json.Marshal(nPeople)
-			conn.WriteJSON(p)
+			conn.WriteJSON(nPeople)
 			oPeople = nPeople
 		}
-
-		pay, _ := json.Marshal(oPeople)
-		conn.WriteJSON(pay)
 	}
 }
 
