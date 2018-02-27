@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -180,6 +181,8 @@ func originCheck(r *http.Request) bool {
 func (a *App) getAllPeople() []person {
 	var people []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
+
+	sort.Slice(people, func(i, j int) bool { return people[i].FirstName < people[j].FirstName })
 
 	return people
 }
