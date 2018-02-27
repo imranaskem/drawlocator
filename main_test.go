@@ -14,7 +14,7 @@ var a App
 func TestMain(m *testing.M) {
 	a = App{}
 
-	a.Initialise("TEST", "TEST", "TEST")
+	// a.Initialise("TEST", "TEST", "TEST", "TEST")
 
 	code := m.Run()
 
@@ -57,6 +57,35 @@ func TestSingleUpdate(t *testing.T) {
 	if person.ID != "4" && person.PlaceOfWork != "Client Office" {
 		t.Error("Expected content missing ", person)
 	}
+}
+
+func TestComparePeople(t *testing.T) {
+	peopleA := createPeople()
+	peopleB := createPeople()
+
+	same := comparePeople(peopleA, peopleB)
+
+	if !same {
+		t.Error("Contents not equal!")
+	}
+}
+
+func createPeople() []person {
+	var people []person
+
+	for i := 0; i < 4; i++ {
+		person := person{
+			ID:          string(i),
+			FirstName:   "Test",
+			LastName:    "Number " + string(i),
+			PlaceOfWork: "Weston Street",
+			Phone:       "+447525944042",
+		}
+
+		people = append(people, person)
+	}
+
+	return people
 }
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {

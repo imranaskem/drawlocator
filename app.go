@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
 	"time"
 
@@ -147,7 +146,25 @@ func (a *App) websocketHandler(c *gin.Context) {
 }
 
 func comparePeople(a, b []person) bool {
-	return reflect.DeepEqual(a, b)
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func originCheck(r *http.Request) bool {
