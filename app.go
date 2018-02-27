@@ -87,8 +87,7 @@ func (a *App) handleOptions(c *gin.Context) {
 }
 
 func (a *App) getAllStaffLocations(c *gin.Context) {
-	var people []person
-	_ = a.DB.C("people").Find(bson.M{}).All(&people)
+	people := a.getAllPeople()
 
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.JSON(http.StatusOK, people)
@@ -97,8 +96,7 @@ func (a *App) getAllStaffLocations(c *gin.Context) {
 func (a *App) getStaffLocation(c *gin.Context) {
 	id := c.Param("id")
 
-	var person person
-	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&person)
+	person := a.findPersonbyID(id)
 
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.JSON(http.StatusOK, person)
@@ -110,8 +108,7 @@ func (a *App) updateStaffLocation(c *gin.Context) {
 	var personUpdate person
 	_ = c.BindJSON(&personUpdate)
 
-	var existingPerson person
-	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&existingPerson)
+	existingPerson := a.findPersonbyID(id)
 
 	existingPerson.PlaceOfWork = personUpdate.PlaceOfWork
 
@@ -135,14 +132,12 @@ func (a *App) websocketHandler(c *gin.Context) {
 		return
 	}
 
-	var oPeople []person
-	_ = a.DB.C("people").Find(bson.M{}).All(&oPeople)
+	oPeople := a.getAllPeople()
 	conn.WriteJSON(oPeople)
 
 	for {
 		time.Sleep(1 * time.Second)
-		var nPeople []person
-		_ = a.DB.C("people").Find(bson.M{}).All(&nPeople)
+		nPeople := a.getAllPeople()
 
 		if !comparePeople(oPeople, nPeople) {
 			conn.WriteJSON(nPeople)
@@ -165,7 +160,14 @@ func originCheck(r *http.Request) bool {
 	return true
 }
 
-func (a *App) findPersonbyID(id int) person {
+func (a *App) getAllPeople() []person {
+	var people []person
+	_ = a.DB.C("people").Find(bson.M{}).All(&people)
+
+	return people
+}
+
+func (a *App) findPersonbyID(id string) person {
 	var existingPerson person
 	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&existingPerson)
 
