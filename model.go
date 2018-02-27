@@ -5,4 +5,5 @@ type person struct {
 	FirstName   string `json:"firstname,omitempty"`
 	LastName    string `json:"lastname,omitempty"`
 	PlaceOfWork string `json:"placeofwork,omitempty"`
+	Phone       string `json:"phone,omitempty"`
 }

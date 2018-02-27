@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -44,15 +46,38 @@ func (a *App) Run() {
 }
 
 func (a *App) initialiseRoutes() {
-
 	a.Router.GET("/staff", a.getAllStaffLocations)
 	a.Router.OPTIONS("/staff", a.handleOptions)
+
+	a.Router.POST("/sms", a.smsHandler)
 
 	a.Router.GET("/staff/:id", a.getStaffLocation)
 	a.Router.PATCH("/staff/:id", a.updateStaffLocation)
 	a.Router.OPTIONS("/staff/:id", a.handleOptions)
 
 	a.Router.GET("/websocket", a.websocketHandler)
+}
+
+func (a *App) smsHandler(c *gin.Context) {
+	msg, _ := c.GetPostForm("Body")
+	from, _ := c.GetPostForm("From")
+
+	place, err := standardisePlace(msg)
+
+	if err != nil {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.String(http.StatusOK, "Invalid location: "+place)
+		return
+	}
+
+	pers := a.findPersonbyPhoneNumber(from)
+
+	pers.PlaceOfWork = place
+
+	a.updatePerson(pers)
+
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.String(http.StatusOK, "Location updated to "+place)
 }
 
 func (a *App) handleOptions(c *gin.Context) {
@@ -138,4 +163,48 @@ func originCheck(r *http.Request) bool {
 	} */
 
 	return true
+}
+
+func (a *App) findPersonbyID(id int) person {
+	var existingPerson person
+	_ = a.DB.C("people").Find(bson.M{"id": id}).One(&existingPerson)
+
+	return existingPerson
+}
+
+func (a *App) findPersonbyPhoneNumber(number string) person {
+	var existingPerson person
+	_ = a.DB.C("people").Find(bson.M{"phone": number}).One(&existingPerson)
+
+	return existingPerson
+}
+
+func (a *App) updatePerson(p person) error {
+	return a.DB.C("people").Update(bson.M{"id": p.ID}, &p)
+}
+
+func standardisePlace(place string) (string, error) {
+	place = strings.ToLower(place)
+
+	switch {
+	case strings.Contains(place, "baker"):
+		return "Baker Street", nil
+
+	case strings.Contains(place, "sick"):
+		return "Sick", nil
+
+	case strings.Contains(place, "weston"):
+		return "Weston Street", nil
+
+	case strings.Contains(place, "holiday"):
+		return "Holiday", nil
+
+	case strings.Contains(place, "client"):
+		return "Client Office", nil
+
+	case strings.Contains(place, "home"):
+		return "Working from Home", nil
+	}
+
+	return place, errors.New("Invalid place")
 }
