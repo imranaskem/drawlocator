@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -45,7 +46,6 @@ func (a *App) Run() {
 }
 
 func (a *App) initialiseRoutes() {
-
 	a.Router.GET("/staff", a.getAllStaffLocations)
 	a.Router.OPTIONS("/staff", a.handleOptions)
 
@@ -62,9 +62,15 @@ func (a *App) smsHandler(c *gin.Context) {
 	msg, _ := c.GetPostForm("Body")
 	from, _ := c.GetPostForm("From")
 
-	pers := a.findPersonbyPhoneNumber(from)
+	place, err := standardisePlace(msg)
 
-	place := standardisePlace(msg)
+	if err != nil {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.String(http.StatusOK, "Invalid location: "+place)
+		return
+	}
+
+	pers := a.findPersonbyPhoneNumber(from)
 
 	pers.PlaceOfWork = place
 
@@ -177,26 +183,28 @@ func (a *App) updatePerson(p person) error {
 	return a.DB.C("people").Update(bson.M{"id": p.ID}, &p)
 }
 
-func standardisePlace(place string) string {
+func standardisePlace(place string) (string, error) {
+	place = strings.ToLower(place)
+
 	switch {
 	case strings.Contains(place, "baker"):
-		return "Baker Street"
+		return "Baker Street", nil
 
 	case strings.Contains(place, "sick"):
-		return "Sick"
+		return "Sick", nil
 
 	case strings.Contains(place, "weston"):
-		return "Weston Street"
+		return "Weston Street", nil
 
 	case strings.Contains(place, "holiday"):
-		return "Holiday"
+		return "Holiday", nil
 
 	case strings.Contains(place, "client"):
-		return "Client Office"
+		return "Client Office", nil
 
 	case strings.Contains(place, "home"):
-		return "Working from Home"
+		return "Working from Home", nil
 	}
 
-	return place
+	return place, errors.New("Invalid place")
 }
