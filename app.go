@@ -46,6 +46,14 @@ func (a *App) Run() {
 }
 
 func (a *App) initialiseRoutes() {
+	a.Router.LoadHTMLGlob("./frontend/*.html")
+	a.Router.Static("/css", "./frontend/css")
+	a.Router.Static("/js", "./frontend/js")
+
+	a.Router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+
 	a.Router.GET("/staff", a.getAllStaffLocations)
 	a.Router.OPTIONS("/staff", a.handleOptions)
 
