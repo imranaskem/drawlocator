@@ -93,6 +93,7 @@ func (a *App) updateLocationFromSlack(c *gin.Context) {
 
 	if err != nil {
 		c.String(http.StatusOK, "Invalid location")
+		return
 	}
 
 	userid := c.Request.FormValue("user_id")
