@@ -88,7 +88,7 @@ func (a *App) updateLocationFromSlack(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	msg := c.Request.FormValue("message")
+	msg := c.Request.FormValue("text")
 	newLocation, err := standardisePlace(msg)
 
 	if err != nil {
