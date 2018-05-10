@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -16,15 +17,25 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const slackGetURL = "https://slack.com/api/users.info?token="
+
 //App holds our application
 type App struct {
-	Router *gin.Engine
-	DB     *mgo.Database
+	Router            *gin.Engine
+	DB                *mgo.Database
+	SlackToken        string
+	SlackRequestToken string
 }
 
-//Initialise acts as our constructor
-func (a *App) Initialise(user, pw, dbname, dburl string) {
+//NewApp acts as our constructor
+func NewApp(user, pw, dbname, dburl, slackToken, slackReqToken string) *App {
+	a := App{}
+
 	a.Router = gin.Default()
+
+	a.SlackToken = slackToken
+
+	a.SlackRequestToken = slackReqToken
 
 	a.initialiseRoutes()
 
@@ -33,6 +44,8 @@ func (a *App) Initialise(user, pw, dbname, dburl string) {
 	a.DB = s.DB(dbname)
 
 	a.DB.Login(user, pw)
+
+	return &a
 }
 
 //Run starts our application
@@ -64,6 +77,31 @@ func (a *App) initialiseRoutes() {
 	a.Router.OPTIONS("/staff/:id", a.handleOptions)
 
 	a.Router.GET("/websocket", a.websocketHandler)
+
+	a.Router.POST("/slackset", a.updateLocationFromSlack)
+}
+
+func (a *App) updateLocationFromSlack(c *gin.Context) {
+	token := c.Request.FormValue("token")
+
+	if token != a.SlackToken {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
+	msg := c.Request.FormValue("message")
+	newLocation, err := standardisePlace(msg)
+
+	if err != nil {
+		c.String(http.StatusOK, "Invalid location")
+	}
+
+	userid := c.Request.FormValue("user_id")
+	existingPerson := a.getPersonFromSlackAPI(userid)
+
+	existingPerson.PlaceOfWork = newLocation
+	a.updatePerson(existingPerson)
+
+	c.String(http.StatusOK, "Location updated to "+newLocation)
 }
 
 func (a *App) smsHandler(c *gin.Context) {
@@ -130,7 +168,6 @@ func (a *App) websocketHandler(c *gin.Context) {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
-		CheckOrigin:     originCheck,
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -176,16 +213,6 @@ func comparePeople(a, b []person) bool {
 	return true
 }
 
-func originCheck(r *http.Request) bool {
-	/* ori := r.Header.Get("Origin")
-
-	if ori == "http://websocket.local" {
-		return true
-	} */
-
-	return true
-}
-
 func (a *App) getAllPeople() []person {
 	var people []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
@@ -209,8 +236,24 @@ func (a *App) findPersonbyPhoneNumber(number string) person {
 	return existingPerson
 }
 
+func (a *App) findPersonByName(first, last string) person {
+	var existingPerson person
+	_ = a.DB.C("people").Find(bson.M{"firstname": first, "lastname": last}).One(&existingPerson)
+
+	return existingPerson
+}
+
 func (a *App) updatePerson(p person) error {
 	return a.DB.C("people").Update(bson.M{"id": p.ID}, &p)
+}
+
+func (a *App) getPersonFromSlackAPI(userid string) person {
+	resp, _ := http.Get(slackGetURL + a.SlackRequestToken + "&user=" + userid)
+
+	var slackResponse slackUserResponse
+	json.NewDecoder(resp.Body).Decode(&slackResponse)
+
+	return a.findPersonByName(slackResponse.User.Profile.FirstName, slackResponse.User.Profile.LastName)
 }
 
 func standardisePlace(place string) (string, error) {

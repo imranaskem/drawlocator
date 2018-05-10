@@ -8,14 +8,14 @@ var staff []person
 
 // our main function
 func main() {
-	a := App{}
-
 	user := os.Getenv("DRAWLOCATOR_USER")
 	pw := os.Getenv("DRAWLOCATOR_PW")
 	dbname := os.Getenv("DRAWLOCATOR_DBNAME")
 	dburl := os.Getenv("DRAWLOCATOR_DBURL")
+	slackToken := os.Getenv("SLACK_TOKEN")
+	slackReqToken := os.Getenv("SLACK_OUT_TOKEN")
 
-	a.Initialise(user, pw, dbname, dburl)
+	a := NewApp(user, pw, dbname, dburl, slackToken, slackReqToken)
 
 	a.Run()
 }
