@@ -92,7 +92,8 @@ func (a *App) updateLocationFromSlack(c *gin.Context) {
 	newLocation, err := standardisePlace(msg)
 
 	if err != nil {
-		c.String(http.StatusOK, "Invalid location")
+		srm := newSlackResponseMessage("Invalid location")
+		c.AbortWithStatusJSON(http.StatusBadRequest, srm)
 		return
 	}
 
@@ -102,7 +103,9 @@ func (a *App) updateLocationFromSlack(c *gin.Context) {
 	existingPerson.PlaceOfWork = newLocation
 	a.updatePerson(existingPerson)
 
-	c.String(http.StatusOK, "Location updated to "+newLocation)
+	srm := newSlackResponseMessage("Location updated to " + newLocation)
+
+	c.JSON(http.StatusOK, srm)
 }
 
 func (a *App) smsHandler(c *gin.Context) {

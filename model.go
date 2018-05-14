@@ -20,3 +20,17 @@ type slackProfile struct {
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
 }
+
+type slackResponseMessage struct {
+	ResponseType string `json:"response_type"`
+	MessageBody  string `json: "text"`
+}
+
+func newSlackResponseMessage(msg string) slackResponseMessage {
+	s := slackResponseMessage{
+		ResponseType: "ephemeral",
+		MessageBody:  msg,
+	}
+
+	return s
+}
