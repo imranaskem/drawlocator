@@ -23,7 +23,7 @@ type slackProfile struct {
 
 type slackResponseMessage struct {
 	ResponseType string `json:"response_type"`
-	MessageBody  string `json: "text"`
+	MessageBody  string `json:"text"`
 }
 
 func newSlackResponseMessage(msg string) slackResponseMessage {
