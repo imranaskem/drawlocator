@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -21,19 +22,22 @@ const slackGetURL = "https://slack.com/api/users.info?token="
 
 //App holds our application
 type App struct {
-	Router            *gin.Engine
-	DB                *mgo.Database
-	SlackToken        string
-	SlackRequestToken string
+	Router                *gin.Engine
+	DB                    *mgo.Database
+	SlackSetLocationToken string
+	SlackWhereIsToken     string
+	SlackRequestToken     string
 }
 
 //NewApp acts as our constructor
-func NewApp(user, pw, dbname, dburl, slackToken, slackReqToken string) *App {
+func NewApp(user, pw, dbname, dburl, slackSetLocationToken, slackWhereIsToken, slackReqToken string) *App {
 	a := App{}
 
 	a.Router = gin.Default()
 
-	a.SlackToken = slackToken
+	a.SlackSetLocationToken = slackSetLocationToken
+
+	a.SlackWhereIsToken = slackWhereIsToken
 
 	a.SlackRequestToken = slackReqToken
 
@@ -79,12 +83,31 @@ func (a *App) initialiseRoutes() {
 	a.Router.GET("/websocket", a.websocketHandler)
 
 	a.Router.POST("/slackset", a.updateLocationFromSlack)
+	a.Router.POST("/slackget", a.getLocationFromSlack)
+}
+
+func (a *App) getLocationFromSlack(c *gin.Context) {
+	token := c.Request.FormValue("token")
+
+	if token != a.SlackWhereIsToken {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
+	msg := c.Request.FormValue("text")
+
+	uid, _ := getUserID(msg)
+
+	slackPerson := a.getPersonFromSlackAPI(uid)
+
+	srm := newSlackResponseMessage(slackPerson.FirstName + " is " + slackPerson.PlaceOfWork)
+
+	c.JSON(http.StatusOK, srm)
 }
 
 func (a *App) updateLocationFromSlack(c *gin.Context) {
 	token := c.Request.FormValue("token")
 
-	if token != a.SlackToken {
+	if token != a.SlackSetLocationToken {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
@@ -284,4 +307,12 @@ func standardisePlace(place string) (string, error) {
 	}
 
 	return place, errors.New("Invalid place")
+}
+
+func getUserID(text string) (string, error) {
+	r := regexp.MustCompile("\\@([^\\|]+)\\|")
+
+	s := r.FindStringSubmatch(text)
+
+	return s[1], nil
 }

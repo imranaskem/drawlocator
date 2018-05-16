@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -68,6 +69,12 @@ func TestComparePeople(t *testing.T) {
 	if !same {
 		t.Error("Contents not equal!")
 	}
+}
+
+func TestRegex(t *testing.T) {
+	s, _ := getUserID("<@U4EMTUT36|imran>")
+
+	fmt.Printf("%v\n", s)
 }
 
 func createPeople() []person {
