@@ -229,28 +229,6 @@ func (a *App) websocketHandler(c *gin.Context) {
 	}
 }
 
-func comparePeople(a, b []person) bool {
-	if a == nil && b == nil {
-		return true
-	}
-
-	if a == nil || b == nil {
-		return false
-	}
-
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
 func (a *App) getAllPeople() []person {
 	var people []person
 	_ = a.DB.C("people").Find(bson.M{}).All(&people)
@@ -326,4 +304,26 @@ func getUserID(text string) (string, error) {
 	s := r.FindStringSubmatch(text)
 
 	return s[1], nil
+}
+
+func comparePeople(a, b []person) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
