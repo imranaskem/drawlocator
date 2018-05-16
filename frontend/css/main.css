@@ -20,6 +20,19 @@ html {
     font-size: 3vw;
     text-align: center;
   }
+
+  input {
+    background-color: #a9a9ac;
+    display: block;
+    margin: 0 auto;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-color: #a9a9ac;
+    border-radius: 5px;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 1.2vw;
+    padding: 10px;
+  }
   
   select {
     background-color: #a9a9ac;

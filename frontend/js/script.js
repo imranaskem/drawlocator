@@ -11,7 +11,8 @@ new Vue({
 
   data: {
     title: `DrawLocator`,
-    people: null,
+    search: ``,
+    people: [],
     places: ["Weston Street", "Baker Street", "Holiday", "Sick", "Client Office", "Working from Home"],    
   },
 
@@ -21,6 +22,17 @@ new Vue({
       c.onmessage = function (event) {
         self.people = JSON.parse(event.data);
       }
+  },
+
+  computed: {
+    filteredPeople: function() {
+      var self = this
+      var term = this.search.toLowerCase()
+      var filtered = this.people.filter(p => p.firstname.toLowerCase().includes(term) ||
+                                        p.lastname.toLowerCase().includes(term) ||
+                                        p.placeofwork.toLowerCase().includes(term))
+      return filtered
+    }
   },
 
   methods: {
@@ -46,18 +58,19 @@ new Vue({
  template: `
  <div>
   <h1>{{title}}</h1>
+    <input type="text" placeholder="Search..." v-model="search" />
           <table>
             <tr>
               <th>Name</th>
               <th>Location</th>
-              <th colspan="2">New Location</th>
+              <th>New Location</th>
             </tr>
-            <tr v-for="person in people">
+            <tr v-for="person in filteredPeople">
               <td>{{person.firstname}} {{person.lastname}}</td>
               <td>{{person.placeofwork}}</td>
               <td>
-                <select v-on:change="selectChange($event, person.id)">
-                  <option>Please select</option>
+                <select required v-on:change="selectChange($event, person.id)">
+                  <option hidden>Please select</option>
                   <option v-for="place in places">{{place}}</option>
                 </select>
               </td>
