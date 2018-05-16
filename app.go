@@ -82,8 +82,19 @@ func (a *App) initialiseRoutes() {
 
 	a.Router.GET("/websocket", a.websocketHandler)
 
-	a.Router.POST("/slackset", a.updateLocationFromSlack)
-	a.Router.POST("/slackget", a.getLocationFromSlack)
+	a.Router.POST("/slack", a.handleSlackRequest)
+}
+
+func (a *App) handleSlackRequest(c *gin.Context) {
+	com := c.Request.FormValue("command")
+
+	switch {
+	case com == "/setlocation":
+		a.updateLocationFromSlack(c)
+
+	case com == "/whereis":
+		a.getLocationFromSlack(c)
+	}
 }
 
 func (a *App) getLocationFromSlack(c *gin.Context) {
@@ -99,7 +110,7 @@ func (a *App) getLocationFromSlack(c *gin.Context) {
 
 	slackPerson := a.getPersonFromSlackAPI(uid)
 
-	srm := newSlackResponseMessage(slackPerson.FirstName + " is " + slackPerson.PlaceOfWork)
+	srm := newSlackResponseMessage(slackPerson.generateLocationMessage())
 
 	c.JSON(http.StatusOK, srm)
 }
