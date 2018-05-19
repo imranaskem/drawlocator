@@ -8,3 +8,4 @@ RUN go install
 
 CMD ["drawlocator"]
 
+EXPOSE 80
