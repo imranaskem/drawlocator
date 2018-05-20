@@ -43,11 +43,19 @@ func NewApp(user, pw, dbname, dburl, slackSetLocationToken, slackWhereIsToken, s
 
 	a.initialiseRoutes()
 
-	s, _ := mgo.Dial(dburl)
+	s, err := mgo.Dial(dburl)
+
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+	}
 
 	a.DB = s.DB(dbname)
 
-	a.DB.Login(user, pw)
+	err = a.DB.Login(user, pw)
+
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+	}
 
 	return &a
 }
