@@ -4,8 +4,6 @@ import (
 	"os"
 )
 
-var staff []person
-
 // our main function
 func main() {
 	user := os.Getenv("DRAWLOCATOR_USER")
