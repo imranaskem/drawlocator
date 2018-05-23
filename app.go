@@ -74,6 +74,7 @@ func (a *App) initialiseRoutes() {
 	a.Router.LoadHTMLGlob("./frontend/*.html")
 	a.Router.Static("/css", "./frontend/css")
 	a.Router.Static("/js", "./frontend/js")
+	a.Router.StaticFile("/robots.txt", "./frontend/robots.txt")
 
 	a.Router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
