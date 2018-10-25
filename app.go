@@ -82,8 +82,6 @@ func (a *App) initialiseRoutes() {
 	a.Router.GET("/staff", a.getAllStaffLocations)
 	a.Router.OPTIONS("/staff", a.handleOptions)
 
-	a.Router.POST("/sms", a.smsHandler)
-
 	a.Router.GET("/staff/:id", a.getStaffLocation)
 	a.Router.PATCH("/staff/:id", a.updateStaffLocation)
 	a.Router.OPTIONS("/staff/:id", a.handleOptions)
@@ -148,28 +146,6 @@ func (a *App) updateLocationFromSlack(c *gin.Context) {
 	srm := newSlackResponseMessage("Location updated to " + newLocation)
 
 	c.JSON(http.StatusOK, srm)
-}
-
-func (a *App) smsHandler(c *gin.Context) {
-	msg, _ := c.GetPostForm("Body")
-	from, _ := c.GetPostForm("From")
-
-	place, err := standardisePlace(msg)
-
-	if err != nil {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.String(http.StatusOK, "Invalid location: "+place)
-		return
-	}
-
-	pers := a.findPersonbyPhoneNumber(from)
-
-	pers.PlaceOfWork = place
-
-	a.updatePerson(pers)
-
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.String(http.StatusOK, "Location updated to "+place)
 }
 
 func (a *App) handleOptions(c *gin.Context) {
