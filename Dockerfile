@@ -8,4 +8,3 @@ EXPOSE 80
 COPY --from=builder /app ./
 COPY --from=builder /go/src/drawlocator/frontend ./frontend
 ENTRYPOINT ["./app"]
-
