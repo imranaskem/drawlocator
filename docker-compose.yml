@@ -6,3 +6,14 @@ services:
     env_file: .env
     ports:
       - "80:80"
+    depends_on:
+      - db
+
+  db:
+    build: ./initdb
+    env_file: .env
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:
