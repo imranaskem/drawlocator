@@ -61,7 +61,7 @@ func NewApp(user, pw, dbname, dburl, slackSetLocationToken, slackWhereIsToken, s
 func (a *App) Run() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "80"
 	}
 
 	a.Router.Run(":" + port)
