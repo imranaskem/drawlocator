@@ -9,7 +9,7 @@ services:
         published: "${PORT:-8080}"
     depends_on:
       - db
-  
+
   db:
     build: ./initdb
     env_file: .env
