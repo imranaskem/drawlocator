@@ -7,3 +7,14 @@ services:
     ports:
       - target: "${PORT:-80}"
         published: "${PORT:-8080}"
+    depends_on:
+      - db
+
+  db:
+    build: ./initdb
+    env_file: .env
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:

@@ -48,12 +48,6 @@ func NewApp(user, pw, dbname, dburl, slackSetLocationToken, slackWhereIsToken, s
 
 	a.DB = s.DB(dbname)
 
-	err = a.DB.Login(user, pw)
-
-	if err != nil {
-		fmt.Println("Error: " + err.Error())
-	}
-
 	return &a
 }
 
