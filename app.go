@@ -55,7 +55,7 @@ func NewApp(user, pw, dbname, dburl, slackSetLocationToken, slackWhereIsToken, s
 func (a *App) Run() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "80"
+		port = "5000"
 	}
 
 	a.Router.Run(":" + port)
@@ -63,14 +63,6 @@ func (a *App) Run() {
 }
 
 func (a *App) initialiseRoutes() {
-	a.Router.LoadHTMLGlob("./frontend/*.html")
-	a.Router.Static("/css", "./frontend/css")
-	a.Router.Static("/js", "./frontend/js")
-
-	a.Router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
-	})
-
 	a.Router.GET("/locations", a.getLocations)
 
 	a.Router.GET("/staff", a.getAllStaffLocations)
@@ -190,6 +182,14 @@ func (a *App) websocketHandler(c *gin.Context) {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+	}
+
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		if r.Header.Get("Origin") == "app" {
+			return true
+		}
+
+		return false
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

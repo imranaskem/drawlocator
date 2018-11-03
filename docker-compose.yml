@@ -1,18 +1,25 @@
 version: '3.3'
 
 services:
+  nginx:
+    build: ./frontend
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - app
+
   app:
     build: .
     env_file: .env
-    ports:
-      - target: "${PORT:-80}"
-        published: "${PORT:-8080}"
+    restart: always
     depends_on:
       - db
 
   db:
     build: ./initdb
     env_file: .env
+    restart: always
     volumes:
       - data:/data/db
 

@@ -1,11 +1,11 @@
 if (window.location.protocol === 'https:') {
-  var apiURL = 'https://' + window.location.host + '/staff'
+  var apiURL = 'https://' + window.location.host + '/api/staff'
   var wsURL = 'wss://' + window.location.host + '/websocket'
-  var locationURL = 'https://' + window.location.host + '/locations'
+  var locationURL = 'https://' + window.location.host + '/api/locations'
 } else {
-  var apiURL = 'http://' + window.location.host + '/staff'
+  var apiURL = 'http://' + window.location.host + '/api/staff'
   var wsURL = 'ws://' + window.location.host + '/websocket'
-  var locationURL = 'http://' + window.location.host + '/locations'
+  var locationURL = 'http://' + window.location.host + '/api/locations'
 }
 
 new Vue({
