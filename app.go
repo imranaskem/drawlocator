@@ -71,6 +71,8 @@ func (a *App) initialiseRoutes() {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
+	a.Router.GET("/locations", a.getLocations)
+
 	a.Router.GET("/staff", a.getAllStaffLocations)
 	a.Router.OPTIONS("/staff", a.handleOptions)
 
@@ -93,6 +95,12 @@ func (a *App) handleSlackRequest(c *gin.Context) {
 	case com == "/whereis":
 		a.getLocationFromSlack(c)
 	}
+}
+
+func (a *App) getLocations(c *gin.Context) {
+	locations := []string{"Weston Street", "Baker Street", "Holiday", "Sick", "Client Office", "Working from Home"}
+
+	c.JSON(http.StatusOK, locations)
 }
 
 func (a *App) getLocationFromSlack(c *gin.Context) {

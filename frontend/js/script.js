@@ -1,9 +1,11 @@
 if (window.location.protocol === 'https:') {
   var apiURL = 'https://' + window.location.host + '/staff'
   var wsURL = 'wss://' + window.location.host + '/websocket'
+  var locationURL = 'https://' + window.location.host + '/locations'
 } else {
   var apiURL = 'http://' + window.location.host + '/staff'
   var wsURL = 'ws://' + window.location.host + '/websocket'
+  var locationURL = 'http://' + window.location.host + '/locations'
 }
 
 new Vue({
@@ -13,7 +15,7 @@ new Vue({
     title: `DrawLocator`,
     search: ``,
     people: [],
-    places: ["Weston Street", "Baker Street", "Holiday", "Sick", "Client Office", "Working from Home"],    
+    places: [],
   },
 
   created: function() {
@@ -22,6 +24,7 @@ new Vue({
       c.onmessage = function (event) {
         self.people = JSON.parse(event.data);
       }
+      this.getLocations()
   },
 
   computed: {
@@ -52,6 +55,16 @@ new Vue({
       var patch = {placeofwork: place}
       var payload = JSON.stringify(patch)
       xhr.send(payload)
+    },
+
+    getLocations: function() {
+      var xhr = new XMLHttpRequest()
+      var self = this
+      xhr.open('GET', locationURL)
+      xhr.onload = function() {
+        self.places = JSON.parse(xhr.responseText)
+      }
+      xhr.send(null)
     }
  },
 
