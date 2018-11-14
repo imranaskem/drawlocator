@@ -27,7 +27,7 @@ type App struct {
 }
 
 //NewApp acts as our constructor
-func NewApp(user, pw, dbname, dburl, slackSetLocationToken, slackWhereIsToken, slackReqToken string) *App {
+func NewApp(dbname, dburl, slackSetLocationToken, slackWhereIsToken, slackReqToken string) *App {
 	a := App{}
 
 	a.Router = gin.Default()
@@ -108,9 +108,9 @@ func (a *App) getLocationFromSlack(c *gin.Context) {
 
 	slackPerson := a.getPersonFromSlackAPI(uid)
 
-	srm := newSlackResponseMessage(slackPerson.generateLocationMessage())
+	slackMessage := newSlackResponseMessage(slackPerson.generateLocationMessage())
 
-	c.JSON(http.StatusOK, srm)
+	c.JSON(http.StatusOK, slackMessage)
 }
 
 func (a *App) updateLocationFromSlack(c *gin.Context) {
