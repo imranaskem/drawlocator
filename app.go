@@ -40,13 +40,30 @@ func NewApp(dbname, dburl, slackSetLocationToken, slackWhereIsToken, slackReqTok
 
 	a.initialiseRoutes()
 
-	s, err := mgo.Dial(dburl)
+	dialled := false
+	count := 1
 
-	if err != nil {
-		fmt.Println("Error: " + err.Error())
+	for dialled == false {
+		fmt.Printf("Connecting to database, attempt %v\n", count)
+		s, err := mgo.Dial(dburl)
+
+		if err != nil {
+			fmt.Println("Error: " + err.Error())
+			fmt.Println("Retrying...")
+		} else {
+			fmt.Println("Connected!")
+			dialled = true
+			a.DB = s.DB(dbname)
+		}
+
+		time.Sleep(2 * time.Second)
+
+		if count > 10 {
+			fmt.Printf("Tried to connect %v times. Exiting program", count)
+			os.Exit(1)
+		}
+		count++
 	}
-
-	a.DB = s.DB(dbname)
 
 	return &a
 }
