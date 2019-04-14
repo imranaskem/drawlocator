@@ -107,7 +107,7 @@ func (a *App) handleSlackRequest(c *gin.Context) {
 }
 
 func (a *App) getLocations(c *gin.Context) {
-	locations := []string{"Weston Street", "Baker Street", "Holiday", "Sick", "Client Office", "Working from Home"}
+	locations := []string{"Weston Street", "Baker Street", "Swansea", "Holiday", "Sick", "Client Office", "Working from Home"}
 
 	c.JSON(http.StatusOK, locations)
 }

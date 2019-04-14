@@ -14,8 +14,8 @@ let res = [
     }),
     db.people.insert({
         id: "3",
-        firstname: "James",
-        lastname: "Nichols",
+        firstname: "Matt",
+        lastname: "Tobin",
         placeofwork: "Holiday"
     }),
     db.people.insert({
