@@ -5,6 +5,7 @@
 *.dylib
 *.test
 *.env
+!example.env
 
 # Test binary, build with `go test -c`
 *.test
