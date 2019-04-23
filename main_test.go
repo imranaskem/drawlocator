@@ -3,19 +3,22 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 )
 
-var a App
+var a *App
 
 func TestMain(m *testing.M) {
-	a = App{}
+	dbname := os.Getenv("MONGO_INITDB_DATABASE")
+	dburl := os.Getenv("DRAWLOCATOR_DBURL")
+	slackToken := os.Getenv("SLACK_SETLOCATION_TOKEN")
+	slackWhereIsToken := os.Getenv("SLACK_WHEREIS_TOKEN")
+	slackReqToken := os.Getenv("SLACK_OUT_TOKEN")
 
-	// a.Initialise("TEST", "TEST", "TEST", "TEST")
+	a = NewApp(dbname, dburl, slackToken, slackWhereIsToken, slackReqToken)
 
 	code := m.Run()
 
@@ -23,7 +26,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetAll(t *testing.T) {
-	req := httptest.NewRequest("GET", "/", nil)
+	req := httptest.NewRequest("GET", "/staff", nil)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -34,7 +37,7 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestSingleGet(t *testing.T) {
-	req := httptest.NewRequest("GET", "/1", nil)
+	req := httptest.NewRequest("GET", "/staff/1", nil)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -47,7 +50,7 @@ func TestSingleGet(t *testing.T) {
 func TestSingleUpdate(t *testing.T) {
 	updateJSON := json.RawMessage(`{"placeofwork": "Client Office"}`)
 	requestBody := bytes.NewBuffer(updateJSON)
-	req := httptest.NewRequest("PATCH", "/4", requestBody)
+	req := httptest.NewRequest("PATCH", "/staff/4", requestBody)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -56,7 +59,7 @@ func TestSingleUpdate(t *testing.T) {
 	_ = json.NewDecoder(response.Body).Decode(&person)
 
 	if person.ID != "4" && person.PlaceOfWork != "Client Office" {
-		t.Error("Expected content missing ", person)
+		t.Errorf("Expected content missing %v\n", person)
 	}
 }
 
@@ -74,7 +77,9 @@ func TestComparePeople(t *testing.T) {
 func TestRegex(t *testing.T) {
 	s, _ := getUserID("<@U4EMTUT36|imran>")
 
-	fmt.Printf("%v\n", s)
+	if s != "U4EMTUT36" {
+		t.Errorf("Regex not working correctly, generated %v\n", s)
+	}
 }
 
 func createPeople() []person {

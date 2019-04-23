@@ -59,7 +59,7 @@ func NewApp(dbname, dburl, slackSetLocationToken, slackWhereIsToken, slackReqTok
 		time.Sleep(2 * time.Second)
 
 		if count > 5 {
-			fmt.Printf("Tried to connect %v times. Exiting program", count)
+			fmt.Printf("Tried to connect %v times. Exiting program\n", count)
 			os.Exit(1)
 		}
 		count++
