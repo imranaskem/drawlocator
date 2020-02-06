@@ -79,8 +79,8 @@ new Vue({
               <th>New Location</th>
             </tr>
             <tr v-for="person in filteredPeople">
-              <td>{{person.firstname}} {{person.lastname}}</td>
-              <td>{{person.placeofwork}}</td>
+              <td id="name">{{person.firstname}} {{person.lastname}}</td>
+              <td id="location">{{person.placeofwork}}</td>
               <td>
                 <select required v-on:change="selectChange($event, person.id)">
                   <option hidden>Please select</option>
